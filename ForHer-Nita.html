@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to bottom, #0b1026 0%, #161b2d 50%, #1f2436 100%);
+            font-family: 'Cormorant Garamond', serif;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: 4em;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .message {
+            font-size: 1.8em;
+            margin: 20px;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
+        }
+
+        .buttons {
+            margin-top: 40px;
+        }
+
+        .yes-btn, .no-btn {
+            padding: 15px 40px;
+            font-size: 1.4em;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .yes-btn {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            color: white;
+            box-shadow: 0 4px 15px rgba(46,204,113,0.3);
+        }
+
+        .no-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(231,76,60,0.3);
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px 50px;
+            border-radius: 15px;
+            z-index: 1000;
+            font-size: 2.5em;
+            color: white;
+            box-shadow: 0 0 50px rgba(255,255,255,0.2);
+        }
+
+        .scene {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40vh;
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.8));
+        }
+
+        .car {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 100px;
+        }
+
+        .couple {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+        }
+
+        @keyframes shoot {
+            0% { transform: translateY(100vh); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: translateY(var(--targetY)); opacity: 0; }
+        }
+
+        @keyframes explode {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+            to { text-shadow: 0 0 20px rgba(255,255,255,0.😎, 0 0 30px rgba(255,255,255,0.6); }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="content">
+        <h1>My Dear</h1>
+        <div class="message">I love you so much more than you know<br>More than infinity</div>
+        <div class="buttons">
+            <button class="yes-btn" onclick="showMessage()">Yes</button>
+            <button class="no-btn" onmouseover="moveButton(this)">No</button>
+        </div>
+        <div class="popup" id="message">You make ah bong the happiness person Alive!</div>
+    </div>
+    <div class="scene" id="scene">
+        <svg class="car" viewBox="0 0 200 100">
+            <path d="M40,80 L160,80 C180,80 190,70 190,60 L190,40 C190,30 180,20 170,20 L140,20 L120,5 L80,5 L60,20 L30,20 C20,20 10,30 10,40 L10,60 C10,70 20,80 40,80 Z" fill="#333"/>
+            <path d="M30,85 L50,85 A10,10 0 0 0 50,65 L30,65 A10,10 0 0 0 30,85 Z" fill="#666"/>
+            <path d="M150,85 L170,85 A10,10 0 0 0 170,65 L150,65 A10,10 0 0 0 150,85 Z" fill="#666"/>
+            <path d="M60,25 L140,25 L140,55 L60,55 Z" fill="#99f"/>
+        </svg>
+        <svg class="couple" viewBox="0 0 100 50">
+            <circle cx="30" cy="15" r="10" fill="#f4a460"/>
+            <path d="M20,25 L40,25 L35,45 L25,45 Z" fill="#4169e1"/>
+            <circle cx="70" cy="15" r="10" fill="#f4a460"/>
+            <path d="M60,25 L80,25 L75,45 L65,45 Z" fill="#ff69b4"/>
+        </svg>
+    </div>
+    <script>
+        const colors = [
+            '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff',
+            '#ff4500', '#7fff00', '#ff1493', '#ffd700', '#00fa9a', '#ff69b4'
+        ];
+
+        function createFirework(x, y) {
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const particles = 80;
+            
+            for (let i = 0; i < particles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.backgroundColor = color;
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                
+                const angle = (i * (360 / particles)) * Math.PI / 180;
+                const velocity = 8 + Math.random() * 6;
+                const dx = Math.cos(angle) * velocity * (Math.random() * 0.5 + 0.5) * 50;
+                const dy = Math.sin(angle) * velocity * (Math.random() * 0.5 + 0.5) * 50;
+                
+                particle.style.setProperty('--dx', dx + 'px');
+                particle.style.setProperty('--dy', dy + 'px');
+                
+                particle.style.animation = 'explode 1.5s ease-out forwards';
+                document.body.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 1500);
+            }
+        }
+
+        function launchFirework() {
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * (window.innerHeight * 0.5);
+            
+            const trail = document.createElement('div');
+            trail.className = 'firework';
+            trail.style.left = x + 'px';
+            trail.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            trail.style.setProperty('--targetY', y + 'px');
+            trail.style.animation = 'shoot 1s ease-out forwards';
+            
+            document.body.appendChild(trail);
+            
+            setTimeout(() => {
+                trail.remove();
+                createFirework(x, y);
+            }, 1000);
+        }
+
+        function moveButton(btn) {
+            const maxX = window.innerWidth - btn.offsetWidth;
+            const maxY = window.innerHeight - btn.offsetHeight;
+            btn.style.transform = scale(${0.8 - Math.random() * 0.3});
+            btn.style.position = 'fixed';
+            btn.style.left = Math.random() * maxX + 'px';
+            btn.style.top = Math.random() * maxY + 'px';
+        }
+
+        function showMessage() {
+            const popup = document.getElementById('message');
+            const scene = document.getElementById('scene');
+            
+            popup.style.display = 'block';
+            setTimeout(() => {
+                popup.style.display = 'none';
+                scene.style.display = 'block';
+                
+                // Launch continuous fireworks
+                setInterval(launchFirework, 500);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
