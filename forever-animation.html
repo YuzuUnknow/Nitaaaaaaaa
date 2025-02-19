@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be With Me Forever</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            position: relative;
+        }
+        
+        .container {
+            position: relative;
+            width: 500px;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle linear infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        .heart {
+            position: absolute;
+            transform-origin: center;
+            animation: float linear infinite;
+        }
+        
+        .heart:before,
+        .heart:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 80%;
+            background: rgba(255, 50, 100, 0.7);
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .heart:before {
+            left: 0;
+            transform: rotate(-45deg);
+            transform-origin: 100% 100%;
+        }
+        
+        .heart:after {
+            right: 0;
+            transform: rotate(45deg);
+            transform-origin: 0 100%;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(400px) scale(1) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-50px) scale(1) rotate(360deg);
+            }
+        }
+        
+        .message-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            height: 200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .message {
+            font-size: 32px;
+            font-weight: bold;
+            color: transparent;
+            background: linear-gradient(to bottom, #ffffff, #ffd700);
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.3));
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            user-select: none;
+            letter-spacing: 1px;
+        }
+        
+        .frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #ff3366, #ba00ff, #00e6cc, #ff9933);
+            background-size: 300% 300%;
+            animation: gradientBorder 15s ease infinite;
+            z-index: 5;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        @keyframes gradientBorder {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .cosmic-swirl {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.2;
+        }
+        
+        /* Flower styles */
+        .flower {
+            position: absolute;
+            z-index: 3;
+            pointer-events: none;
+        }
+        
+        .flower-center {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #ffcc00;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        
+        .petal {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ff66aa;
+            border-radius: 40% 40% 60% 60%;
+            transform-origin: center bottom;
+            opacity: 0;
+            top: -15px;
+            left: -4px;
+        }
+        
+        @keyframes bloomPetal {
+            0% {
+                transform: rotate(var(--rotate)) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: rotate(var(--rotate)) scale(1);
+                opacity: 0.9;
+            }
+            90% {
+                transform: rotate(var(--rotate)) scale(1);
+                opacity: 0.9;
+            }
+            100% {
+                transform: rotate(var(--rotate)) scale(0.8);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="frame"></div>
+        <div class="stars"></div>
+        <canvas class="cosmic-swirl" id="cosmicSwirl"></canvas>
+        
+        <div class="message-container">
+            <div class="message" id="msg1">I love you </div>
+            <div class="message" id="msg2">So muchhhhh</div>
+            <div class="message" id="msg3">and Foreverrr</div>
+        </div>
+    </div>
+
+    <script>
+        // Container references
+        const container = document.querySelector('.container');
+        const starsContainer = document.querySelector('.stars');
+        const messageContainer = document.querySelector('.message-container');
+        
+        // Create stars
+        const numStars = 80;
+        
+        for (let i = 0; i < numStars; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            
+            const size = Math.random() * 2 + 0.5;
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+            const duration = Math.random() * 3 + 2;
+            const delay = Math.random() * 5;
+            
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${posX}%`;
+            star.style.top = `${posY}%`;
+            star.style.animationDuration = `${duration}s`;
+            star.style.animationDelay = `${delay}s`;
+            
+            starsContainer.appendChild(star);
+        }
+        
+        // Create hearts
+        const numHearts = 15;
+        
+        for (let i = 0; i < numHearts; i++) {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            
+            const size = Math.random() * 15 + 5;
+            const posX = Math.random() * 100;
+            const duration = Math.random() * 15 + 10;
+            const delay = Math.random() * 10;
+            const opacity = Math.random() * 0.5 + 0.3;
+            
+            heart.style.width = `${size}px`;
+            heart.style.height = `${size}px`;
+            heart.style.left = `${posX}%`;
+            heart.style.animationDuration = `${duration}s`;
+            heart.style.animationDelay = `-${delay}s`;
+            heart.style.opacity = opacity;
+            
+            container.appendChild(heart);
+        }
+        
+        // Animated messages
+        const messages = [
+            document.getElementById('msg1'),
+            document.getElementById('msg2'),
+            document.getElementById('msg3')
+        ];
+        
+        let currentMsg = 0;
+        
+        function animateMessages() {
+            // Hide all messages
+            messages.forEach(msg => {
+                msg.style.opacity = 0;
+                msg.style.transition = 'opacity 1s';
+            });
+            
+            // Show current message and create flower
+            setTimeout(() => {
+                messages[currentMsg].style.opacity = 1;
+                createFlower();
+                
+                // Move to next message
+                currentMsg = (currentMsg + 1) % messages.length;
+                
+                // Schedule next animation
+                setTimeout(animateMessages, 3000);
+            }, 1000);
+        }
+        
+        // Create a blooming flower
+        function createFlower() {
+            // Create flower container
+            const flower = document.createElement('div');
+            flower.classList.add('flower');
+            
+            // Position randomly around the message area
+            const posX = Math.random() * 400 + 50;
+            const posY = Math.random() * 300 + 50;
+            
+            flower.style.left = `${posX}px`;
+            flower.style.top = `${posY}px`;
+            
+            // Create flower center
+            const center = document.createElement('div');
+            center.classList.add('flower-center');
+            flower.appendChild(center);
+            
+            // Create petals
+            const petalCount = 8;
+            
+            // Random flower color theme
+            const petalHue = Math.floor(Math.random() * 60) + 320; // Pink to purple range
+            const centerHue = petalHue + 60;
+            
+            center.style.background = `hsl(${centerHue}, 80%, 60%)`;
+            
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.classList.add('petal');
+                
+                // Set rotation angle for petal
+                const angle = (i * 360 / petalCount);
+                petal.style.setProperty('--rotate', `${angle}deg`);
+                
+                // Set unique petal color - slight variations
+                const hueVariation = Math.random() * 20 - 10;
+                petal.style.background = `hsl(${petalHue + hueVariation}, 80%, 70%)`;
+                
+                // Set animation
+                petal.style.animation = `bloomPetal 5s forwards`;
+                
+                // Stagger the petals blooming
+                petal.style.animationDelay = `${i * 0.1}s`;
+                
+                flower.appendChild(petal);
+            }
+            
+            container.appendChild(flower);
+            
+            // Remove flower after animation completes
+            setTimeout(() => {
+                flower.remove();
+            }, 5000);
+        }
+        
+        // Start message animation
+        animateMessages();
+        
+        // Cosmic swirl background
+        const canvas = document.getElementById('cosmicSwirl');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Particle system for cosmic effect
+        const particles = [];
+        const particleCount = 40;
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.color = `hsl(${Math.random() * 60 + 220}, 70%, 60%)`;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function initParticles() {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 70) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 * (1 - distance/70)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (const particle of particles) {
+                particle.update();
+                particle.draw();
+            }
+            
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+        
+        initParticles();
+        animate();
+    </script>
+</body>
+</html>
